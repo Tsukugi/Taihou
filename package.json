@@ -1,7 +1,8 @@
 {
-  "name": "@atsu/template",
-  "version": "1.0.0",
-  "description": "Template for a node/browser lib",
+  "name": "@atsu/taihou",
+  "version": "0.1.0",
+  "description": "Small state manager written in Typescript",
+  "main": "./dist/umd.bundle.js",
   "exports": {
     "node": "./dist/commonjs.bundle.cjs",
     "default": "./dist/umd.bundle.js"
@@ -20,12 +21,16 @@
     "prepare": "npm run build"
   },
   "keywords": [
-    "javascript",
-    "typescript"
+    "typescript",
+    "state",
+    "dispatch",
+    "javascript"
   ],
   "author": "Tsukugi",
   "license": "MIT",
   "repository": {
+    "type": "git",
+    "url": "https://github.com:Tsukugi/Taihou.git"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
