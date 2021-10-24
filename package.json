@@ -32,6 +32,10 @@
     "type": "git",
     "url": "https://github.com:Tsukugi/Taihou.git"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.45",
