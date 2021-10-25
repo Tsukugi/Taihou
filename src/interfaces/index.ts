@@ -1,6 +1,4 @@
-import { Immutable } from './inmutable';
-
-export type Commit<State> = (payload: any, options: Immutable<State>) => State;
+export type Commit<State> = (payload: any, options: State) => State;
 
 export type Process<State, ActionNames extends string, ProcessNames extends string> = (
   payload: any,
@@ -14,7 +12,7 @@ export type DispatchProcess<ProcessName extends string, State> = <Payload>(
 ) => Promise<State>;
 
 export interface Section<State, ActionNames extends string, ProcessNames extends string> {
-  state: Immutable<State>;
-  commit: DispatchCommit<ActionNames>;
-  process: DispatchProcess<ProcessNames, State>;
+  readonly state: State;
+  readonly commit: DispatchCommit<ActionNames>;
+  readonly process: DispatchProcess<ProcessNames, State>;
 }

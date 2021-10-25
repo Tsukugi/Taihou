@@ -1,5 +1,4 @@
 import { Commit, DispatchCommit, DispatchProcess, Process, Section } from '../interfaces';
-import { Immutable } from '../interfaces/inmutable';
 
 interface SectionProps<State, ActionNames extends string, ProcessNames extends string> {
   state: State;
@@ -28,7 +27,7 @@ export const createSection = <State, ActionNames extends string, ProcessNames ex
     const update: Promise<State> = fn(payload, {
       commit,
       process,
-      state: section.state as Immutable<State>,
+      state: section.state,
     });
 
     update.then(newState => Object.assign(section.state, newState));
@@ -37,7 +36,7 @@ export const createSection = <State, ActionNames extends string, ProcessNames ex
   };
 
   return {
-    state: section.state as Immutable<State>,
+    state: section.state,
     commit,
     process,
   };
