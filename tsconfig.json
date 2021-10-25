@@ -1,6 +1,6 @@
 /*
-* Typescript config for Development
-*/
+ * Typescript config for Development
+ */
 
 {
   "compilerOptions": {

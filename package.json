@@ -1,10 +1,13 @@
 {
   "name": "@atsu/taihou",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Small state manager written in Typescript",
   "main": "./dist/umd.bundle.js",
   "exports": {
-    "node": "./dist/commonjs.bundle.cjs",
+    "node": {
+      "import": "./dist/commonjs2.bundle.cjs",
+      "require": "./dist/commonjs.bundle.cjs"
+    },
     "default": "./dist/umd.bundle.js"
   },
   "types": "./dist/index.d.ts",
