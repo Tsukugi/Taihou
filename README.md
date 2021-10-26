@@ -93,12 +93,6 @@ useStore(store => defineComponent({
 
 ```
 
-## Run tests
-
-```sh
-npm run test
-```
-
 ## Author
 
 👤 **Tsukugi**
