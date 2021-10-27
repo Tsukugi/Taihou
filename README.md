@@ -42,7 +42,7 @@ const taihou = createSection({
       setAsync: async (payload, { state, commit, process }) => {
           const newList = await doSomethingAsyncWithPromises(payload) 
           
-          return { list: [...state.list, ...newList] },
+          return { list: [...state.list, ...newList] };
       }
     }
   });
@@ -68,9 +68,78 @@ setAsync.then(newState=> {
   console.log(newState);  // value [ 0, 1, 2, 3, 4 ] 
 });
 
+// A section also can have watchers 
+taihou.watch(state => {
+  console.log(state) // This is executed whenever a change is detected (the state was updated)
+});
+
+
 ```
 
-Store: A store by `createStore` is nothing else than a wrapper for your `sections`, it provides a single `store` object that would be your State manager and also `useStore` that is a wrapper function to use on components (e.g. Vue3's DefineComponent), it is intended to have more features for it in the future.
+## Typescript 
+
+After you define your section, it should be possible to have type inference. 
+
+```ts
+
+taihou // Should be of type Section<{ list: number[] }, "set", "setAsync"> 
+taihou.commit("unrelatedName", {}) // Should throw an error as "unrelatedName" is not part of "set"
+
+```
+
+This is nice, and enforces a type safe development, but it can be a bit hard to read if you have a big section.
+
+```ts
+const taihou = createSection({/* now with more options */}) 
+```
+
+It has this big type on hover:
+
+``` ts
+const createSection: <{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">
+    (section: SectionProps<{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">) 
+    => Section<{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">
+```
+
+So if you want to play with the types, it is recommended to define your actions and state names on predefined interfaces/enums
+
+
+```ts
+interface TaihouState {
+  id: string;
+  list: number[];
+  name: string;
+}
+
+enum Actions {
+  setList = "setList"
+  setId = "setId"
+  setName = "setName"
+}
+
+enum Processes {
+  updateList = "updateList"
+}
+
+const taihou = createSection<TaihouState, Actions, Processes>({/* now with more options */}) 
+```
+
+Now it's really minimalistic and nice!
+
+```ts
+ const createSection: <TaihouState, Actions, Processes>(section: SectionProps<TaihouState, Actions, Processes>) 
+    => Section<TaihouState, Actions, Processes>
+```
+
+Also, to use them you alredy have a nice type definition to call
+
+```ts
+taihou.commit(Actions.setList, [1, 2, 3]);
+```
+
+### Store
+
+A store by `createStore` is nothing else than a wrapper for your `sections`, it provides a single `store` object that would be your State manager and also `useStore` that is a wrapper function to use on components (e.g. Vue3's DefineComponent), it is intended to have more features for it in the future.
 
 ```js
 
