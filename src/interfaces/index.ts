@@ -12,6 +12,7 @@ export type DispatchProcess<ProcessName extends string, State> = <Payload>(
 ) => Promise<State>;
 
 export interface Section<State, ActionNames extends string, ProcessNames extends string> {
+  readonly watch: (onWatch: (state: State) => void) => void;
   readonly state: State;
   readonly commit: DispatchCommit<ActionNames>;
   readonly process: DispatchProcess<ProcessNames, State>;
