@@ -6,9 +6,7 @@
   </a>
 </p>
 
-> Small state manager written in Typescript
-
-### 🏠 [Homepage](https://github.com/Tsukugi/Taihou#readme)
+#### A small state manager written in Typescript
 
 ## Install
 
