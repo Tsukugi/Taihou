@@ -1,3 +1,2 @@
-export { createSection } from "./store/createSection";
-export { createStore } from "./store/createStore";
+export { createStore } from "./store/store";
 export { Section } from "./interfaces";
