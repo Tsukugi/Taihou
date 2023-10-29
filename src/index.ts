@@ -1,3 +1,2 @@
 export { useState } from "./store/store";
-
-export { Section } from "./interfaces";
+export { UseState, SubscribeAction } from "./interfaces";

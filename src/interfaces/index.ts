@@ -1,6 +1,5 @@
-export type SubscribeAction<T> = (cb: (message: T) => void) => void;
-
-export interface Section<State> {
-    readonly state: State;
-    readonly watch: SubscribeAction<State>;
+export type SubscribeAction<State> = (onUpdate: (state: State) => void) => void;
+export type UseState<State> = [State, SubscribeAction<State>];
+export interface Options {
+    debug: boolean;
 }
