@@ -1,21 +1,25 @@
-type Callback<Data> = (data: Data) => void;
+import { SubscribeAction } from "../interfaces";
 
-export const createSubscriber = <Events extends string, Data extends Record<string, any>>() => {
-  const events = {} as Record<Events, Callback<Data>[]>;
+export interface CreateSubscriberProps<T> {
+    subscribe: SubscribeAction<T>;
+    unsubscribe: SubscribeAction<T>;
+    publish: (message: T) => void;
+}
 
-  const subscribe = (event: Events, callback: Callback<Data>): void => {
-    if (events.hasOwnProperty(event)) {
-      events[event].push(callback);
-    } else {
-      events[event] = [];
-    }
-  };
-  const publish = (event: Events, data = {} as Data) => {
-    if (!events.hasOwnProperty(event)) {
-      return [];
-    }
-    return events[event].map(callback => callback(data));
-  };
+export const createSubscriber = <T>(): CreateSubscriberProps<T> => {
+    const subscribers: Set<(message: T) => void> = new Set();
 
-  return { subscribe, publish };
+    return {
+        subscribe(cb) {
+            subscribers.add(cb);
+        },
+
+        unsubscribe(cb) {
+            subscribers.delete(cb);
+        },
+
+        publish(message) {
+            subscribers.forEach((cb) => cb(message));
+        },
+    };
 };

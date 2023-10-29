@@ -1,62 +1,61 @@
 {
-  "name": "@atsu/taihou",
-  "version": "0.2.0",
-  "description": "Small state manager written in Typescript",
-  "main": "./dist/umd.bundle.js",
-  "exports": {
-    "node": {
-      "import": "./dist/commonjs2.bundle.cjs",
-      "require": "./dist/commonjs.bundle.cjs"
+    "name": "@atsu/taihou",
+    "version": "0.3.0",
+    "description": "Small state manager written in Typescript",
+    "main": "./dist/umd.bundle.js",
+    "exports": {
+        "node": {
+            "import": "./dist/commonjs2.bundle.cjs",
+            "require": "./dist/commonjs.bundle.cjs"
+        },
+        "default": "./dist/umd.bundle.js"
     },
-    "default": "./dist/umd.bundle.js"
-  },
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "compile": "tsc",
-    "test": "jest --config jest.config.js",
-    "lint": "eslint src --ext .ts --fix",
-    "prettier:check": "npx prettier --check .",
-    "prettier:write": "npx prettier --write .",
-    "webpack:build": "npx webpack --mode=production",
-    "webpack:watch": "npx webpack --mode=development --watch",
-    "build": "npm run webpack:build",
-    "build:prod": "npm run prettier:write && npm run lint && npm run webpack:build",
-    "prepare": "npm run build"
-  },
-  "keywords": [
-    "typescript",
-    "state",
-    "dispatch",
-    "javascript"
-  ],
-  "author": "Tsukugi",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com:Tsukugi/Taihou.git"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "homepage": "https://github.com/Tsukugi/Taihou#readme",
-  "bugs": {
-    "url": "https://github.com/Tsukugi/Taihou/issues"
-  },
-  "devDependencies": {
-    "@types/jest": "^26.0.14",
-    "@types/node": "^14.14.45",
-    "@typescript-eslint/eslint-plugin": "^4.2.0",
-    "@typescript-eslint/parser": "^4.2.0",
-    "eslint": "^7.17.0",
-    "eslint-config-prettier": "^8.3.0",
-    "jest": "^26.4.2",
-    "prettier": "2.4.1",
-    "ts-jest": "^26.4.0",
-    "ts-loader": "^9.2.6",
-    "typescript": "4.1.5",
-    "webpack": "^5.58.1",
-    "webpack-cli": "^4.9.0",
-    "webpack-node-externals": "^3.0.0"
-  }
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "compile": "tsc",
+        "test": "jest --config jest.config.js",
+        "lint": "eslint src --ext .ts --fix",
+        "prettier:check": "npx prettier --check .",
+        "prettier:write": "npx prettier --write .",
+        "webpack:build": "npx webpack --mode=production",
+        "webpack:watch": "npx webpack --mode=development --watch",
+        "build": "npm run webpack:build",
+        "build:prod": "npm run prettier:write && npm run lint && npm run webpack:build"
+    },
+    "keywords": [
+        "typescript",
+        "state",
+        "dispatch",
+        "javascript"
+    ],
+    "author": "Tsukugi",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com:Tsukugi/Taihou.git"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "homepage": "https://github.com/Tsukugi/Taihou#readme",
+    "bugs": {
+        "url": "https://github.com/Tsukugi/Taihou/issues"
+    },
+    "devDependencies": {
+        "@types/jest": "^26.0.14",
+        "@types/node": "^14.14.45",
+        "@typescript-eslint/eslint-plugin": "^4.2.0",
+        "@typescript-eslint/parser": "^4.2.0",
+        "eslint": "^7.17.0",
+        "eslint-config-prettier": "^8.3.0",
+        "jest": "^26.4.2",
+        "prettier": "2.4.1",
+        "ts-jest": "^26.4.0",
+        "ts-loader": "^9.2.6",
+        "typescript": "4.1.5",
+        "webpack": "^5.58.1",
+        "webpack-cli": "^4.9.0",
+        "webpack-node-externals": "^3.0.0"
+    }
 }
