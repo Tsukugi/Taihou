@@ -20,7 +20,8 @@
         "webpack:build": "npx webpack --mode=production",
         "webpack:watch": "npx webpack --mode=development --watch",
         "build": "npm run webpack:build",
-        "build:prod": "npm run prettier:write && npm run lint && npm run webpack:build"
+        "build:prod": "npm run prettier:write && npm run lint && npm run webpack:build",
+        "prepare": "npm run build"
     },
     "keywords": [
         "typescript",
