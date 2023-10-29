@@ -1,10 +1,8 @@
 import { describe, expect, jest, test } from "@jest/globals";
-import { createStore } from "../../src/index";
+import { useState } from "../../src/index";
 import { deepCopy } from "../../src/store/deepCopy";
 
 describe("Taihou Store", () => {
-    const { useState } = createStore();
-
     const defaultState = {
         count: 0,
         id: "atago",
