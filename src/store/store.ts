@@ -1,38 +1,46 @@
-import { Options, SubscribeAction, UseState } from "../interfaces";
-import { deepCopy } from "./deepCopy";
+import { Options, UseState } from "../interfaces";
+import { deepCopy, deepProxy, updateNestedValue } from "./assign";
 import { createSubscriber } from "./subscribe";
 
-const register = <State extends Record<string, any>>(
-    state: State,
-    options: Options,
-): {
-    state: State;
-    watch: SubscribeAction<State>;
-} => {
-    const events = createSubscriber<State>();
-    let innerState = deepCopy(state) as State;
-    const setProxyState = new Proxy(innerState, {
-        set: (state, key, newValue, receiver) => {
-            const newState = { ...receiver, [key]: newValue };
-            events.publish(newState);
-            options.debug && console.log(newState);
-            // The default behavior to store the value
-            (state as any)[key] = newValue;
-            return true;
-        },
-        get: (state, key, receiver) => {
-            // The default behavior to get the state
-            return (state as any)[key];
-        },
+const defaultOptions: Options = { name: "", debug: false };
+export const createStore = <State extends Record<string, unknown>>(
+    section: Record<string, State>,
+    options: Partial<Options> = defaultOptions,
+) => {
+    const store: Record<string, UseState<State>> = {};
+
+    Object.keys(section).forEach((sectionName) => {
+        const namedOptions = {
+            ...defaultOptions,
+            name: options.name || sectionName,
+        };
+        store[sectionName] = useState(section[sectionName], namedOptions);
     });
 
-    return { state: setProxyState, watch: events.subscribe };
+    return store;
 };
 
-export const useState = <State extends Record<string, any>>(
-    initialState: State,
-    options: Options = { debug: false },
+export const useState = <State extends Record<string, unknown>>(
+    state: State,
+    options: Partial<Options> = defaultOptions,
 ): UseState<State> => {
-    const { state, watch } = register(initialState, options);
-    return [state, watch];
+    const innerOptions = { ...defaultOptions, ...options };
+    const unlinkedState = deepCopy(state);
+    const events = createSubscriber<State>();
+
+    const innerState = deepProxy<State>(
+        unlinkedState,
+        ({ newValue, path, initialObject }) => {
+            const updatedObject = updateNestedValue(
+                initialObject,
+                path,
+                newValue,
+            );
+            innerOptions.debug &&
+                console.log(`#${innerOptions.name}: ${path} => ${newValue}`);
+            events.publish(updatedObject);
+        },
+    );
+
+    return [innerState, events.subscribe, events.unsubscribe];
 };

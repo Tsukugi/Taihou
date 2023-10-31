@@ -1,2 +1,2 @@
-export { useState } from "./store/store";
+export { createStore } from "./store/store";
 export { UseState, SubscribeAction } from "./interfaces";

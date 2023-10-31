@@ -1,25 +1,28 @@
 import { SubscribeAction } from "../interfaces";
 
+type Update<T> = (update: T) => void;
 export interface CreateSubscriberProps<T> {
     subscribe: SubscribeAction<T>;
     unsubscribe: SubscribeAction<T>;
-    publish: (message: T) => void;
+    publish: Update<T>;
 }
 
 export const createSubscriber = <T>(): CreateSubscriberProps<T> => {
-    const subscribers: Set<(message: T) => void> = new Set();
+    const subscribers: Set<Update<T>> = new Set();
 
     return {
         subscribe(cb) {
             subscribers.add(cb);
+            return cb;
         },
 
         unsubscribe(cb) {
             subscribers.delete(cb);
+            return cb;
         },
 
-        publish(message) {
-            subscribers.forEach((cb) => cb(message));
+        publish(update) {
+            subscribers.forEach((cb) => cb(update));
         },
     };
 };

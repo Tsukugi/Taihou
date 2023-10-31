@@ -3,8 +3,8 @@ typedoc/
 docs/
 examples/cli/node_modules/
 dist/
+coverage/
 
-.coverage
 .azurlane
 .vscode
 .idea
