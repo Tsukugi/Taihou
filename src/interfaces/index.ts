@@ -8,7 +8,7 @@ export type UseState<State> = [
     SubscribeAction<State>,
 ];
 
-export interface Options {
+export interface TaihouOptions {
     name: string;
     debug: boolean;
 }

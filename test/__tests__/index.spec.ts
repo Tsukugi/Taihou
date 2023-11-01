@@ -1,5 +1,5 @@
 import { describe, expect, jest, test } from "@jest/globals";
-import { createStore } from "../../src/store/store";
+import { useState } from "../../src/store/store";
 import { deepCopy } from "../../src/store/assign";
 
 describe("Taihou Store", () => {
@@ -11,14 +11,16 @@ describe("Taihou Store", () => {
     const deepCopyDefaultState = deepCopy(defaultState);
 
     const storeOptions = { debug: true };
-    const { atago, azuma } = createStore(
-        { atago: defaultState, azuma: defaultState },
-        storeOptions,
-    );
 
-    const [atagoState, atagoWatch] = atago;
-    const [azumaState, azumaWatch] = azuma;
-
+    const [atagoState, atagoWatch] = useState(defaultState, {
+        ...storeOptions,
+        name: "atago",
+    });
+    const [azumaState] = useState(defaultState, {
+        ...storeOptions,
+        name: "azuma",
+    });
+    
     describe("create a section ", () => {
         test("Is created with a correct state", () => {
             expect(atagoState).toHaveProperty("count");
@@ -35,7 +37,7 @@ describe("Taihou Store", () => {
 
     describe("Subscriber Pattern", () => {
         test("Is the state updated", () => {
-            let history: any[] = [];
+            const history: number[] = [];
 
             const updateHistory = ({ count }) => {
                 history.push(count);

@@ -6,7 +6,7 @@ interface OnChangeWrapperProps<T> {
     newValue: T;
     initialObject: T;
 }
-export const deepProxy = <RootObject extends Record<string, unknown>>(
+export const deepProxy = <RootObject extends object>(
     initialObject: RootObject,
     onChangeWrapper: (props: OnChangeWrapperProps<RootObject>) => void,
 ): RootObject => {
