@@ -6,9 +6,11 @@
   </a>
 </p>
 
-#### A small state manager written in Typescript
+#### A simple state manager written in Typescript
 
-## Install
+## How to Install
+
+Copy, paste and run, like most packages.
 
 ```sh
 npm i @atsu/taihou
@@ -16,154 +18,113 @@ npm i @atsu/taihou
 
 ## Usage
 
-First of all, there is two concepts to know:
+First of all, you just need to know one simple concept
 
-1. Sections: A section is the core of the Store, it has three properties `state`, `actions` and `processes`.
+1. `value`, `watch` and `unwatch`: These words are the core of Taihou.
 
-    After you define the state, you can define all possible actions that will commit your new state to the section on `actions`.
-    And if you have an async operation, you could define it in `processes`.
+    Use a `value` to read and write new data.
 
-2. Immutability: A user would never have to modify the state directly but instead provide your new state to the store to handle it, so a created section will expose `commit` and `process`. These will call the specified `action` or `process` function and update the state accordingly.
+    You `watch` for changes and do something about it, and you `unwatch` when you want to stop watching a value.
 
-    A thing to note here is that we want to provide the new state to the section, so please return a new object with the new state.
 
-```ts
-import { createSection } from "@atsu/taihou";
-
-const taihou = createSection({
-    state: {
-        list: [0], // Default value
-    },
-    actions: {
-        set: (payload, state) => ({ list: [...state.list, ...payload] }),
-    },
-    processes: {
-        setAsync: async (payload, { state, commit, process }) => {
-            const newList = await doSomethingAsyncWithPromises(payload);
-
-            return { list: [...state.list, ...newList] };
-        },
-    },
-});
-```
-
-After creation you can use the section with:
+Then you are good to go, this is a basic example on how to use it.
 
 ```ts
-taihou.state.list; // value: [ 0 ]
+import { useState } from "@atsu/taihou";
 
-// Update the taihou section synchronously.
-// Also TS should infer your defined function names so no mistakes for the name
-taihou.actions.commit("set", [1, 2]);
 
-taihou.state.list; // value [ 0, 1, 2 ]
-
-// Update the taihou section asynchronously.
-const setAsync: Promise<number[]> = taihou.actions.process("setAsync", [3, 4]);
-
-taihou.state.list; // value [ 0, 1, 2 ] - Value is not updated immediately
-
-setAsync.then((newState) => {
-    console.log(newState); // value [ 0, 1, 2, 3, 4 ]
+const [taihou, watchTaihou, unwatchTaihou] = useState({
+    list: [],
+    flag: false,
 });
 
-// A section also can have watchers
-taihou.watch((state) => {
-    console.log(state); // This is executed whenever a change is detected (the state was updated)
-});
+const onTaihouUpdate = ({ list, flag }) => {
+    console.log("I will receive this updated ", list);
+    console.log("I will receive this updated flag as", flag);
+};
+
+watchTaihou(onTaihouUpdate);            // I want to watch for updates
+
+taihou.list = ["I want to add this"];   // This will trigger an update
+taihou.flag = true;                     // This will trigger an update again
+
+unwatchTaihou(onTaihouUpdate);          // I am responisble and clean my listeners
+
 ```
+
 
 ## Typescript
 
-After you define your section, it should be possible to have type inference.
+After you define your state, it should be possible to have type inference.
 
 ```ts
-taihou; // Should be of type Section<{ list: number[] }, "set", "setAsync">
-taihou.commit("unrelatedName", {}); // Should throw an error as "unrelatedName" is not part of "set"
+taihou; // Should be of type { list: any[], flag: boolean }
 ```
 
 This is nice, and enforces a type safe development, but it can be a bit hard to read if you have a big section.
 
-```ts
-const taihou = createSection({
-    /* now with more options */
-});
-```
+Plus, we have an `any[]` in the list type, TS took the initial values to type it. 
 
-It has this big type on hover:
-
-```ts
-const createSection: <{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">
-    (section: SectionProps<{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">)
-    => Section<{ id: string; list: number[]; name: string; }, "setList" | "setId" | "setName", "updateList">
-```
-
-So if you want to play with the types, it is recommended to define your actions and state names on predefined interfaces/enums
+We can do it better, so we simply define an `TaihouState` interface to feed the useState generic: 
 
 ```ts
 interface TaihouState {
-  id: string;
-  list: number[];
-  name: string;
+    list: string[]
+    flag: boolean
 }
-
-enum Actions {
-  setList = "setList"
-  setId = "setId"
-  setName = "setName"
-}
-
-enum Processes {
-  updateList = "updateList"
-}
-
-const taihou = createSection<TaihouState, Actions, Processes>({/* now with more options */})
 ```
+And include it in the `useState` as `useState<TaihouState>`.
 
-Now it's really minimalistic and nice!
+Or you can always make your code organized, I prefer it this way:
 
 ```ts
-const createSection: <TaihouState, Actions, Processes>(
-    section: SectionProps<TaihouState, Actions, Processes>,
-) => Section<TaihouState, Actions, Processes>;
+const initialTaihouState: TaihouState = {
+    list: [],
+    flag: false,
+}
+const [taihou, watchTaihou, unwatchTaihou] = useState(initialTaihouState);
 ```
 
-Also, to use them you alredy have a nice type definition to call
+
+And that's it, really simple!
+
+
+You can organize multiple states as sections of a store, if you want to separate concerns and also to separate the watchers' event handlers.
 
 ```ts
-taihou.commit(Actions.setList, [1, 2, 3]);
+export const MyAppStore = {
+    taihou: useState(initialTaihouState);
+    azuma: useState(initialAzumaState);
+    atago: useState(initialAtagoState);
+}
+```
+```ts
+/* In another file */
+const [azuma, watchAzuma, unwatchAzuma] = MyAppStore.azuma;
 ```
 
-### Store
+### Configuration 
 
-A store by `createStore` is nothing else than a wrapper for your `sections`, it provides a single `store` object that would be your State manager and also `useStore` that is a wrapper function to use on components (e.g. Vue3's DefineComponent), it is intended to have more features for it in the future.
+If you wanna see what's going on every update, just enable `debug` mode:
 
-```js
-const { store, useStore } = createStore({
-    taihou: createSection({
-        /* section definition */
-    }),
-    azuma: createSection({
-        /* section definition */
-    }),
-    atago: createSection({
-        /* section definition */
-    }),
-});
-
-useStore((store) => {
-    // here the store reference is available
-});
-
-// In Vue 3
-useStore((store) =>
-    defineComponent({
-        mounted() {
-            console.log(store.taihou); // here the store reference is available
-        },
-    }),
-);
+```ts
+const [taihou, watchTaihou, unwatchTaihou] = useState(initialTaihouState, { debug: true });
 ```
+
+This way Taihou will log any change update into the console.
+
+
+## Common questions and answers
+
+Q: This basically describes the `Publish-subscribe pattern`, why not simply use a message system?
+
+A: I do not want to define messages and map them in an Enum. Taihou 0.2.x used this method of doing things.
+
+Q: Why I would use this instead of Redux or Pinia or any other store management? 
+
+A: The main point of Taihou is simplicity, it resolves the problem of needing a State and Event management and only that.
+This gives you also the benefit of integrating on almost any project (that uses npm).
+
 
 ## Author
 
