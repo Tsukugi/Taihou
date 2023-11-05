@@ -20,7 +20,11 @@ export const useState = <State extends Record<keyof State, unknown>>(
                 newValue,
             );
             innerOptions.debug &&
-                console.log(`#${innerOptions.name}: ${path} => ${newValue}`);
+                console.log(
+                    `#${innerOptions.name}: ${path} => ${JSON.stringify(
+                        newValue,
+                    )}`,
+                );
             events.publish(updatedObject);
         },
     );
