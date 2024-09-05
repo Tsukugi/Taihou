@@ -20,7 +20,7 @@ describe("Taihou Store", () => {
         ...storeOptions,
         name: "azuma",
     });
-    
+
     describe("create a section ", () => {
         test("Is created with a correct state", () => {
             expect(atagoState).toHaveProperty("count");

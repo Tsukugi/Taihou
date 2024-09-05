@@ -3,6 +3,11 @@ src
 examples
 tests
 typedoc
+test
+./*
+!package.json
+!README.md
+node_modules
 
 #Root configuration files
 .github
@@ -15,3 +20,4 @@ tsconfig.json
 package-lock.json
 yarn.lock
 *.tgz
+.vscode
