@@ -1,8 +1,12 @@
 #Development folders
+.vscode
 src
 examples
 tests
 typedoc
+test
+./*
+!package.json
 
 #Root configuration files
 .github
