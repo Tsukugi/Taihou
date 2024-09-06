@@ -17,29 +17,31 @@ export const deepProxy = <RootObject extends object>(
         path: string,
         onChange: (props: OnChangeWrapperProps<RootObject>) => void,
     ) => {
-        const addProperty = (property) =>
+        const addProperty = (property: string) =>
             path !== "" ? `${path}.${property}` : property;
 
         return new Proxy(target, {
             get(target, property) {
-                const item = target[property as string];
+                const key = property as keyof RootObject;
+                const item = target[key];
                 if (!item || typeof item !== "object") return item;
                 if (proxyCache.has(item)) return proxyCache.get(item);
                 const proxy = createDeepOnChangeProxy(
                     item as RootObject,
-                    addProperty(property),
+                    addProperty(String(key)),
                     onChange,
                 );
                 proxyCache.set(item, proxy);
                 return proxy;
             },
-            set(target, property: string, newValue) {
+            set(target, property, newValue) {
+                const key = property as keyof RootObject;
                 onChange({
                     initialObject,
-                    path: addProperty(property),
+                    path: addProperty(String(key)),
                     newValue,
                 });
-                (target as unknown)[property] = newValue;
+                target[key] = newValue;
                 return true;
             },
         });
@@ -48,14 +50,16 @@ export const deepProxy = <RootObject extends object>(
     return createDeepOnChangeProxy(initialObject, "", onChangeWrapper);
 };
 
-export const updateNestedValue = <T>(
-    initialObject: T,
+export const updateNestedValue = <
+    RootObject extends Record<keyof RootObject, unknown>,
+>(
+    initialObject: RootObject,
     path: string,
     newValue: unknown,
-): T => {
+): RootObject => {
     const keys = path.split(".");
-    const updatedObject: T = { ...initialObject };
-    let currentObject: T = updatedObject;
+    const updatedObject: RootObject = { ...initialObject };
+    let currentObject: Record<string, unknown> = updatedObject;
 
     for (let i = 0; i < keys.length - 1; i++) {
         if (
@@ -64,7 +68,7 @@ export const updateNestedValue = <T>(
         ) {
             currentObject[keys[i]] = {};
         }
-        currentObject = currentObject[keys[i]];
+        currentObject = currentObject[keys[i]] as Record<string, unknown>;
     }
 
     currentObject[keys[keys.length - 1]] = newValue;

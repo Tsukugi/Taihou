@@ -39,7 +39,7 @@ describe("Taihou Store", () => {
         test("Is the state updated", () => {
             const history: number[] = [];
 
-            const updateHistory = ({ count }) => {
+            const updateHistory = ({ count }: { count: number }) => {
                 history.push(count);
                 expect(history).toContain(count);
             };

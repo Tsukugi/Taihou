@@ -1,16 +1,8 @@
 {
     "name": "@atsu/taihou",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "description": "Small state manager written in Typescript",
-    "main": "./dist/umd.bundle.js",
-    "exports": {
-        "node": {
-            "import": "./dist/commonjs2.bundle.cjs",
-            "require": "./dist/commonjs.bundle.cjs"
-        },
-        "default": "./dist/umd.bundle.js"
-    },
-    "types": "./dist/index.d.ts",
+    "main": "./src/index.ts",
     "scripts": {
         "compile": "tsc",
         "test": "jest --config jest.config.js",
