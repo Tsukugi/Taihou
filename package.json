@@ -4,13 +4,13 @@
     "description": "Small state manager written in Typescript",
     "main": "./dist/umd.bundle.js",
     "exports": {
+        "types": "./dist/index.d.ts",
         "node": {
             "import": "./dist/commonjs2.bundle.cjs",
             "require": "./dist/commonjs.bundle.cjs"
         },
         "default": "./dist/umd.bundle.js"
     },
-    "typings": "./dist/index.d.ts",
     "types": "./dist/index.d.ts",
     "scripts": {
         "compile": "tsc",
