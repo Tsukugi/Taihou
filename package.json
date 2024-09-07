@@ -10,8 +10,8 @@
         },
         "default": "./dist/umd.bundle.js"
     },
-    "typings": "./typings/index.d.ts",
-    "types": "./typings/index.d.ts",
+    "typings": "./dist/index.d.ts",
+    "types": "./dist/index.d.ts",
     "scripts": {
         "compile": "tsc",
         "test": "jest --config jest.config.js",
