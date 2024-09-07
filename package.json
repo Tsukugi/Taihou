@@ -2,14 +2,23 @@
     "name": "@atsu/taihou",
     "version": "0.4.0",
     "description": "Small state manager written in Typescript",
-    "main": "./src/index.ts",
+    "main": "./dist/umd.bundle.js",
+    "exports": {
+        "node": {
+            "import": "./dist/commonjs2.bundle.cjs",
+            "require": "./dist/commonjs.bundle.cjs"
+        },
+        "default": "./dist/umd.bundle.js"
+    },
+    "typings": "./typings/index.d.ts",
+    "types": "./typings/index.d.ts",
     "scripts": {
         "compile": "tsc",
         "test": "jest --config jest.config.js",
         "lint": "eslint src --ext .ts --fix",
         "prettier:check": "npx prettier --check .",
         "prettier:write": "npx prettier --write .",
-        "webpack:build": "npx webpack --mode=production",
+        "webpack:build": "npx webpack --mode=production && tsc",
         "webpack:watch": "npx webpack --mode=development --watch",
         "build": "npm run webpack:build",
         "build:prod": "npm run test && npm run prettier:write && npm run lint && npm run webpack:build",

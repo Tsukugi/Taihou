@@ -6,8 +6,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "declaration": true
+        "allowSyntheticDefaultImports": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["src/tests", "node_modules"]

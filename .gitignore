@@ -4,6 +4,7 @@ docs/
 examples/cli/node_modules/
 dist/
 coverage/
+typings/
 
 .azurlane
 .vscode
