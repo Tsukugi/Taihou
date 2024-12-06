@@ -1,33 +1,83 @@
-import { TaihouOptions, UseState } from "../interfaces";
-import { deepCopy, deepProxy, updateNestedValue } from "./assign";
+import { ActionsDef, Dispatch, GettersDef, MapProps, SimpleDispatch, StateDef, TaihouOptions, TaihouState, UseStateProps, } from "../interfaces";
+import { deepCopy } from "./assign";
 import { createSubscriber } from "./subscribe";
 
 const defaultOptions: TaihouOptions = { name: "store", debug: false };
-export const useState = <State extends Record<keyof State, unknown>>(
-    state: State,
-    options: Partial<TaihouOptions> = defaultOptions,
-): UseState<State> => {
-    const innerOptions = { ...defaultOptions, ...options };
-    const unlinkedState = deepCopy(state);
-    const events = createSubscriber<State>();
+export type UseState = typeof useState;
+export const useState =
+    <
+        State extends StateDef<State>,
+        Actions extends ActionsDef<State>,
+        Getters extends GettersDef<State>>({
+            options,
+            state,
+            actions,
+            getters
+        }: UseStateProps<State, Actions, Getters>): TaihouState<
+            State,
+            MapProps<
+                Actions,
+                SimpleDispatch>,
+            MapProps<
+                Getters,
+                SimpleDispatch>
+        > => {
+        const innerOptions = { ...defaultOptions, ...options };
+        let unlinkedState = deepCopy(state);
+        const events = createSubscriber<State>();
+        const getState = () => deepCopy(unlinkedState);
+        const linkedActions = injectStructure<State, Dispatch<State, State>, Actions>(
+            getState,
+            actions,
+            (oldState, newState) => {
+                if (innerOptions.debug) console.log({ oldState, newState })
+                Object.assign(unlinkedState, newState);
+                events.publish(newState);
+                return unlinkedState;
+            })
+        const linkedGetters = injectStructure<State, Dispatch<State, any>, Getters>(
+            getState,
+            getters);
+        return {
+            getState,
+            actions: linkedActions,
+            getters: linkedGetters,
+            watch: events.subscribe,
+            unwatch: events.unsubscribe
+        }
+    };
+const injectStructure = <
+    Structure extends { [K in keyof Structure]: Structure[keyof Structure] },
+    Executor extends Dispatch<Structure, any>,
+    FnRecord extends Record<keyof FnRecord, any>,
+>(
+    getStructure: () => Structure,
+    record: { [K in keyof FnRecord]: Executor },
+    interceptor?: Executor,
+): MapProps<FnRecord, SimpleDispatch> =>
 
-    const innerState = deepProxy<State>(
-        unlinkedState,
-        ({ newValue, path, initialObject }) => {
-            const updatedObject = updateNestedValue(
-                initialObject,
-                path,
-                newValue,
-            );
-            innerOptions.debug &&
-                console.log(
-                    `#${innerOptions.name}: ${path} => ${JSON.stringify(
-                        newValue,
-                    )}`,
-                );
-            events.publish(updatedObject);
-        },
-    );
+    Object.keys(record)
+        .reduce<MapProps<FnRecord, SimpleDispatch>>((acc, key) => {
+            (acc as any)[key] =
+                <T>(payload: T) => {
+                    const oldStructure = getStructure()
+                    const newStructure = (record as any)[key](oldStructure, payload)
+                    interceptor && interceptor(oldStructure, newStructure);
+                }
+            return acc;
+        }, {} as MapProps<FnRecord, SimpleDispatch>)
 
-    return [innerState, events.subscribe, events.unsubscribe];
-};
+const a = injectStructure(
+    () => ({
+        count: 0,
+        nest: { a: true }
+    }),
+    {
+        add: ({ count }) => ({ count: count++ }),
+        replace: (state, payload: number) => ({ count: payload }),
+        nestMod: (state, payload: { a: boolean }) =>
+            ({ ...state, nest: { ...state.nest, ...payload } })
+    },
+)
+a.add("adw")
+a.replace()

@@ -1,2 +1,2 @@
-export { useState } from "./store/store";
-export { UseState, SubscribeAction, TaihouOptions } from "./interfaces";
+export { useState, UseState } from "./store/store";
+export * from "./interfaces";
