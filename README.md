@@ -18,22 +18,48 @@ npm i @atsu/taihou
 
 ## Usage
 
-First of all, you just need to know one simple concept
+There is only one simple thing to learn for Taihou, the `UseStateProps`
 
-1. `value`, `watch` and `unwatch`: These words are the core of Taihou.
-
-    Use a `value` to read and write new data.
-
-    You `watch` for changes and do something about it, and you `unwatch` when you want to stop watching a value.
+```ts
+export type UseStateProps<State, Actions, Getters> = {
+    state: State; // Initial state you want to track
+    actions: Actions; // Set of functions that will update the state
+    getters: Getters; // Set of functions that will get data from the state
+    options?: TaihouOptions; // Configuration options
+};
+```
 
 Then you are good to go, this is a basic example on how to use it.
 
 ```ts
 import { useState } from "@atsu/taihou";
 
-const [taihou, watchTaihou, unwatchTaihou] = useState({
-    list: [],
-    flag: false,
+const taihou = useState({
+    state: {
+        list: [],
+        flag: false,
+        nested: {
+            listenToMe: false,
+        },
+    },
+    actions: {
+        // Define how your actions will modify the state, and return a new state object
+        addToList: (state, payload) => ({
+            ...state,
+            list: [...state.list, ...payload],
+        }),
+        changeFlag: (state, payload) => ({ ...state, flag: payload }),
+        toggleListenToMe: (state, payload) => ({
+            ...state,
+            nested: {
+                ...state.nested,
+                listenToMe: payload;
+            }
+        })
+    },
+    getters: {
+        isListenToMe: (state) => state.nested.listenToMe;
+    }
 });
 
 const onTaihouUpdate = ({ list, flag }) => {
@@ -43,8 +69,19 @@ const onTaihouUpdate = ({ list, flag }) => {
 
 watchTaihou(onTaihouUpdate); // I want to watch for updates
 
-taihou.list = ["I want to add this"]; // This will trigger an update
-taihou.flag = true; // This will trigger an update again
+// Get the actions
+const { addToList, changeFlag, toggleListenToMe } = taihouState.actions;
+
+addToList(["I want to add this"]); // This will trigger an update
+changeFlag(true); // This will trigger an update again
+toggleListenToMe(true); // This too
+
+
+const { isListenToMe } = taihouState.getters;
+
+console.log(isListenToMe()) // Should get the current state of nested.listenToMe
+
+console.log(taihouState.getState()) // I get the whole state object;
 
 unwatchTaihou(onTaihouUpdate); // I am responisble and clean my listeners
 ```
@@ -54,10 +91,10 @@ unwatchTaihou(onTaihouUpdate); // I am responisble and clean my listeners
 After you define your state, it should be possible to have type inference.
 
 ```ts
-taihou; // Should be of type { list: any[], flag: boolean }
+taihou.getState(); // Should be of type { list: any[], flag: boolean, nested: { listenToMe: boolean }}
 ```
 
-This is nice, and enforces a type safe development, but it can be a bit hard to read if you have a big section.
+This is nice, and enforces a type safe development, but it can be a bit hard to read if you have a big state.
 
 Plus, we have an `any[]` in the list type, TS took the initial values to type it.
 
@@ -67,6 +104,9 @@ We can do it better, so we simply define an `TaihouState` interface to feed the 
 interface TaihouState {
     list: string[];
     flag: boolean;
+    nested: {
+        listenToMe: boolean;
+    };
 }
 ```
 
@@ -78,8 +118,11 @@ Or you can always make your code organized, I prefer it this way:
 const initialTaihouState: TaihouState = {
     list: [],
     flag: false,
+    nested: {
+        listenToMe: false;
+    };
 };
-const [taihou, watchTaihou, unwatchTaihou] = useState(initialTaihouState);
+const taihou = useState(initialTaihouState);
 ```
 
 And that's it, really simple!
@@ -96,22 +139,32 @@ export const MyAppStore = {
 
 ```ts
 /* In another file */
-const [azuma, watchAzuma, unwatchAzuma] = MyAppStore.azuma;
+const { getState, actions, getters, watch, unwatch } = MyAppStore.azuma;
 ```
 
 ### Configuration
 
-If you wanna see what's going on every update, just enable `debug` mode:
+If you wanna see what's going on every update, just enable `debug` mode in the options:
 
 ```ts
-const [taihou, watchTaihou, unwatchTaihou] = useState(initialTaihouState, {
-    debug: true,
+useState({
+    // ... rest of the props
+    options: { debug: true },
 });
 ```
 
 This way Taihou will log any change update into the console.
 
 ## Common questions and answers
+Q: I checked the code, we are DeepCloning with JSON parse/stringify!? 
+
+A: Yes, for now. I will change to a faster method whenever i have time.
+
+Q: What happened to the simplicity of 0.4.x?, the `[state, watch, unwatch]` paradigm?
+
+A: That was awesome, but it had a problem with how JS handles objects by reference, making the Proxy to not trigger updates when dynamically adding properties. 
+
+I wanted to make the actions (state mutations) more explicit, although sacrificing a bit of simplicity, we can have more control on every update and be reliable on edits.
 
 Q: This basically describes the `Publish-subscribe pattern`, why not simply use a message system?
 

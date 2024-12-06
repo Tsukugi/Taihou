@@ -18,12 +18,17 @@ describe("Taihou Store", () => {
         actions: {
             count: (state, payload) => ({ ...state, count: payload }),
             setId: (state, payload) => ({ ...state, id: payload }),
-            setStats: (state, payload: { hp: number }) =>
-                ({ ...state, stats: { ...state.stats, ...payload } })
+            setStats: (state, payload: { hp: number }) => ({
+                ...state,
+                stats: { ...state.stats, ...payload },
+            }),
+            resetStats: (state) => {
+                return { ...state, stats: { hp: state.stats.hp } };
+            },
         },
         getters: {
-            getStats: (state) => state.stats
-        }
+            getStats: (state) => state.stats,
+        },
     });
     const azuma = useState({
         options: { ...storeOptions, name: "azuma" },
@@ -31,7 +36,7 @@ describe("Taihou Store", () => {
         actions: {
             setId: (state, payload) => ({ ...state, id: payload }),
         },
-        getters: {}
+        getters: {},
     });
 
     describe("create a section ", () => {
@@ -71,6 +76,7 @@ describe("Taihou Store", () => {
             count(2);
 
             handler();
+
             count(3);
             count(4);
 
@@ -106,7 +112,7 @@ describe("Taihou Store", () => {
             setId("musashi");
 
             // Although they share default values a different State should not trigger unwanted sideeffects
-            azuma.actions.setId("azumama")
+            azuma.actions.setId("azumama");
 
             expect(reusable).toHaveBeenCalledTimes(1);
         });
@@ -114,10 +120,30 @@ describe("Taihou Store", () => {
             const { setId, setStats } = atago.actions;
 
             setId("taihou");
-            setStats({ hp: 250 })
+            setStats({ hp: 250 });
 
             // Provided default state should not mutate
             expect(defaultState).toStrictEqual(deepCopyDefaultState);
+        });
+        test("Add/Remove properties should not break the reactivity", () => {
+            const reusable = jest.fn();
+
+            atago.watch(reusable);
+
+            const { setStats, resetStats } = atago.actions;
+
+            setStats({ hp: 250, newProp: "test" });
+
+            expect(reusable).toHaveBeenCalledTimes(1);
+
+            const atagoState = atago.getState();
+            expect(atagoState).toHaveProperty("stats.newProp");
+
+            resetStats();
+            
+            expect(reusable).toHaveBeenCalledTimes(2);
+            const atagoState2 = atago.getState();
+            expect(atagoState2).not.toHaveProperty("stats.newProp");
         });
     });
 });
