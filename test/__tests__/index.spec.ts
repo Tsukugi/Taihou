@@ -7,6 +7,7 @@ describe("Taihou Store", () => {
         count: 0,
         id: "atago",
         stats: { hp: 500 },
+        dict: {} as Record<string, any> // Should support this!!!!
     };
     const deepCopyDefaultState = deepCopy(defaultState);
 
@@ -16,15 +17,15 @@ describe("Taihou Store", () => {
         options: { ...storeOptions, name: "atago" },
         state: defaultState,
         actions: {
-            count: (state, payload) => ({ ...state, count: payload }),
-            setId: (state, payload) => ({ ...state, id: payload }),
-            setStats: (state, payload: { hp: number }) => ({
-                ...state,
-                stats: { ...state.stats, ...payload },
-            }),
-            resetStats: (state) => {
-                return { ...state, stats: { hp: state.stats.hp } };
-            },
+            count: (state, payload: number) => ({ ...state, count: payload }),
+            setId: (state, payload: string) => ({ ...state, id: payload }),
+            setStats: (state, payload: { hp: number }) =>
+                ({ ...state, stats: { ...state.stats, ...payload } }),
+            addToDict: (state, payload: string) =>
+                ({ ...state, dict: { ...state.dict, [payload]: payload } }),
+            resetDict: (state) =>
+                ({ ...state, dict: {} })
+
         },
         getters: {
             getStats: (state) => state.stats,
@@ -34,9 +35,8 @@ describe("Taihou Store", () => {
         options: { ...storeOptions, name: "azuma" },
         state: defaultState,
         actions: {
-            setId: (state, payload) => ({ ...state, id: payload }),
+            setId: (state, payload: string) => ({ ...state, id: payload }),
         },
-        getters: {},
     });
 
     describe("create a section ", () => {
@@ -116,6 +116,7 @@ describe("Taihou Store", () => {
 
             expect(reusable).toHaveBeenCalledTimes(1);
         });
+
         test("Provided default state should not mutate", () => {
             const { setId, setStats } = atago.actions;
 
@@ -125,25 +126,37 @@ describe("Taihou Store", () => {
             // Provided default state should not mutate
             expect(defaultState).toStrictEqual(deepCopyDefaultState);
         });
+
         test("Add/Remove properties should not break the reactivity", () => {
             const reusable = jest.fn();
 
             atago.watch(reusable);
 
-            const { setStats, resetStats } = atago.actions;
+            const { addToDict, resetDict } = atago.actions;
 
-            setStats({ hp: 250, newProp: "test" });
+            const newState = addToDict("test");
 
+            expect(newState.dict).toStrictEqual({ ["test"]: "test" })
             expect(reusable).toHaveBeenCalledTimes(1);
 
             const atagoState = atago.getState();
-            expect(atagoState).toHaveProperty("stats.newProp");
+            expect(atagoState.dict).toHaveProperty("test");
 
-            resetStats();
-            
+            resetDict(undefined);
+
             expect(reusable).toHaveBeenCalledTimes(2);
             const atagoState2 = atago.getState();
-            expect(atagoState2).not.toHaveProperty("stats.newProp");
+            expect(atagoState2.dict).not.toHaveProperty("test");
+        });
+
+        test("Actions and Getters", () => {
+            const { getters, actions } = atago;
+
+            // This should also return the updated state
+            const newState = actions.setStats({ hp: 1000 });
+
+            expect(newState.stats).toStrictEqual({ hp: 1000 });
+            expect(getters.getStats(undefined)).toStrictEqual({ hp: 1000 });
         });
     });
 });

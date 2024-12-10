@@ -9,24 +9,48 @@ export type TaihouState<State, Actions, Getters> = {
     watch: SubscribeAction<State>,
     unwatch: SubscribeAction<State>,
 }
-export type UseStateProps<State, Actions, Getters> = {
-    state: State,
-    actions: Actions,
-    getters: Getters,
-    options?: TaihouOptions
-}
-
-
-export type MapProps<Obj extends Object, T> = { [K in keyof Obj]: T };
-export type SimpleDispatch = <T extends unknown> (payload?: T) => void;
-export type Dispatch<Structure, Return, Payload = any> = (structure: Structure, payload: Payload) => Return;
-
-export type StateDef<T = any> = Record<keyof T, T[keyof T]>;
-export type ActionsDef<State, T = any, P = any> = Record<keyof T, (state: State, payload: P) => State>;
-export type GettersDef<State, T = any, R = any> = Record<keyof T, (state: State) => R>;
-
 
 export interface TaihouOptions {
     name: string;
     debug: boolean;
 }
+
+
+export type UseStateProps<State, Actions, Getters> = {
+    state: State,
+    actions?: Actions,
+    getters?: Getters,
+    options?: TaihouOptions
+}
+
+export type GenericObject<T> = { [K in keyof T]: T[K] };
+export type GenericDispatch<Structure, Map extends Record<keyof Map, Dispatch>> = {
+    [key in keyof Map]:
+    Dispatch<
+        Structure,
+        ReturnType<Map[key]>,
+        DispatchPayload<Map[key]>
+    >;
+};
+
+export type Dispatch<
+    Structure = any,
+    Return extends ReturnType<Dispatch> = any,
+    Payload = any> =
+    (structure: Structure, payload: Payload) => Return;
+
+export type Getter<P, R> = (payload: P) => R
+export type DispatchPayload<D extends Dispatch> =
+    Parameters<D>[1];
+
+
+export type MapDispatchToGetter<
+    Source extends { [key in keyof Source]:
+        Dispatch<any, ReturnType<Source[key]>> },
+> =
+    {
+        [key in keyof Source]:
+        Getter<
+            DispatchPayload<Source[key]>,
+            ReturnType<Source[key]>>
+    }
