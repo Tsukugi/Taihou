@@ -7,7 +7,7 @@ describe("Taihou Store", () => {
         count: 0,
         id: "atago",
         stats: { hp: 500 },
-        dict: {} as Record<string, any> // Should support this!!!!
+        dict: {} as Record<string, any>, // Should support this!!!!
     };
     const deepCopyDefaultState = deepCopy(defaultState);
 
@@ -19,13 +19,15 @@ describe("Taihou Store", () => {
         actions: {
             count: (state, payload: number) => ({ ...state, count: payload }),
             setId: (state, payload: string) => ({ ...state, id: payload }),
-            setStats: (state, payload: { hp: number }) =>
-                ({ ...state, stats: { ...state.stats, ...payload } }),
-            addToDict: (state, payload: string) =>
-                ({ ...state, dict: { ...state.dict, [payload]: payload } }),
-            resetDict: (state) =>
-                ({ ...state, dict: {} })
-
+            setStats: (state, payload: { hp: number }) => ({
+                ...state,
+                stats: { ...state.stats, ...payload },
+            }),
+            addToDict: (state, payload: string) => ({
+                ...state,
+                dict: { ...state.dict, [payload]: payload },
+            }),
+            resetDict: (state) => ({ ...state, dict: {} }),
         },
         getters: {
             getStats: (state) => state.stats,
@@ -136,7 +138,7 @@ describe("Taihou Store", () => {
 
             const newState = addToDict("test");
 
-            expect(newState.dict).toStrictEqual({ ["test"]: "test" })
+            expect(newState.dict).toStrictEqual({ ["test"]: "test" });
             expect(reusable).toHaveBeenCalledTimes(1);
 
             const atagoState = atago.getState();

@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from "@jest/globals";
 
-import { deepCopy, } from "../../src/store/assign";
+import { deepCopy } from "../../src/store/assign";
 
 describe("Taihou Store", () => {
     describe("Deep Copy ", () => {

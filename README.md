@@ -156,13 +156,14 @@ useState({
 This way Taihou will log any change update into the console.
 
 ## Common questions and answers
-Q: I checked the code, we are DeepCloning with JSON parse/stringify!? 
+
+Q: I checked the code, we are DeepCloning with JSON parse/stringify!?
 
 A: Yes, for now. I will change to a faster method whenever i have time.
 
 Q: What happened to the simplicity of 0.4.x?, the `[state, watch, unwatch]` paradigm?
 
-A: That was awesome, but it had a problem with how JS handles objects by reference, making the Proxy to not trigger updates when dynamically adding properties. 
+A: That was awesome, but it had a problem with how JS handles objects by reference, making the Proxy to not trigger updates when dynamically adding properties.
 
 I wanted to make the actions (state mutations) more explicit, although sacrificing a bit of simplicity, we can have more control on every update and be reliable on edits.
 
