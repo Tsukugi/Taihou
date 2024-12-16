@@ -10,30 +10,40 @@ export const deepCopy = <T>(obj: T): T => {
     return JSON.parse(JSON.stringify(obj)) as T;
 };
 
-export const injectStructure = <
-    Structure extends GenericObject<any>,
+export const injectState = <
+    State extends GenericObject<unknown>,
     DispatchRecord extends {
         [key in keyof DispatchRecord]: Dispatch<
-            Structure,
+            State,
             ReturnType<DispatchRecord[key]>,
             DispatchPayload<DispatchRecord[key]>
         >;
-    } = Record<string, Dispatch<Structure>>,
-    Return = ReturnType<DispatchRecord[keyof DispatchRecord]>,
+    } = Record<string, Dispatch<State>>,
 >(
-    getStructure: () => Structure,
+    getState: () => State,
     record: DispatchRecord,
-    interceptor?: Dispatch<Structure, Structure, Return>,
+    interceptor?: (props: {
+        oldState: State;
+        result: ReturnType<DispatchRecord[keyof DispatchRecord]>;
+    }) => void,
 ) =>
     Object.keys(record).reduce((acc, key) => {
-        const dispatchFn: Dispatch<Structure, Return> = (record as any)[key];
-        const getter: Getter<any, Return> = (payload) => {
-            const oldStructure = getStructure();
-            const newStructure = dispatchFn(oldStructure, payload);
-            interceptor && interceptor(oldStructure, newStructure);
-            return newStructure;
+        const dispatchFn = record[key as keyof DispatchRecord] as Dispatch<
+            State,
+            ReturnType<DispatchRecord[keyof DispatchRecord]>
+        >;
+        const getter = (
+            payload: DispatchPayload<DispatchRecord[keyof DispatchRecord]>,
+        ): ReturnType<DispatchRecord[keyof DispatchRecord]> => {
+            const oldState = getState();
+            const result = dispatchFn(oldState, payload);
+            interceptor && interceptor({ oldState, result });
+            return result;
         };
 
-        (acc as any)[key] = getter;
+        acc[key as keyof DispatchRecord] = getter as Getter<
+            DispatchPayload<DispatchRecord[keyof DispatchRecord]>,
+            ReturnType<DispatchRecord[keyof DispatchRecord]>
+        >;
         return acc;
     }, {} as MapDispatchToGetter<DispatchRecord>);

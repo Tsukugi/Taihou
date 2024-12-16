@@ -1,6 +1,6 @@
 {
     "name": "@atsu/taihou",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "description": "Small state manager written in Typescript",
     "main": "./dist/umd.bundle.js",
     "exports": {

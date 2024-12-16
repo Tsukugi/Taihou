@@ -7,14 +7,14 @@ import {
     GenericDispatch,
     Dispatch,
 } from "../interfaces";
-import { deepCopy, injectStructure } from "./assign";
+import { deepCopy, injectState } from "./assign";
 import { createSubscriber } from "./subscribe";
 
 const defaultOptions: TaihouOptions = { name: "store", debug: false };
 export type UseState = typeof useState;
 export const useState = <
     State extends GenericObject<State>,
-    Actions extends GenericDispatch<State, Actions> = Record<
+    Actions extends GenericDispatch<State, Actions, State> = Record<
         string,
         Dispatch<State, State>
     >,
@@ -35,20 +35,20 @@ export const useState = <
     const innerActions: Actions = actions || ({} as Actions);
     const innerGetters: Getters = getters || ({} as Getters);
     const innerOptions = { ...defaultOptions, ...options };
-    let unlinkedState = deepCopy(state);
+    const unlinkedState = deepCopy(state);
     const events = createSubscriber<State>();
     const getState = () => deepCopy(unlinkedState);
-    const linkedActions = injectStructure<State, Actions, State>(
+    const linkedActions = injectState<State, Actions>(
         getState,
         innerActions,
-        (oldState, newState) => {
-            if (innerOptions.debug) console.log({ oldState, newState });
-            Object.assign(unlinkedState, newState);
-            events.publish(newState);
+        ({ oldState, result }) => {
+            if (innerOptions.debug) console.log({ oldState, newState: result });
+            Object.assign(unlinkedState, result);
+            events.publish(result);
             return unlinkedState;
         },
     );
-    const linkedGetters = injectStructure(getState, innerGetters);
+    const linkedGetters = injectState(getState, innerGetters);
 
     return {
         getState,

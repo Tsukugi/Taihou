@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { injectStructure } from "../../src/store/assign";
+import { injectState } from "../../src/store/assign";
 import { MapDispatchToGetter } from "../../src/interfaces";
 import { useState } from "../../src/store/store";
 
@@ -17,12 +17,12 @@ describe("Types", () => {
 
         const res: MapDispatchToGetter<typeof record> = {
             test: (payload) => 10 + payload,
-            test2: (payload) => true,
+            test2: () => true, // This should not have args if payload is not defined
         };
         res.test(1);
     });
     test("injectStructure infers types correctly", () => {
-        const structure = injectStructure(
+        const structure = injectState(
             () => ({
                 count: 0,
                 nest: { a: true },
@@ -54,25 +54,25 @@ describe("Types", () => {
                 count: 0,
             },
             actions: {
-                doTest: (state, payload) => state,
+                doTest: (state) => state,
                 doAnotherTest: (state, payload: number) => ({
                     ...state,
                     count: payload,
                 }),
             },
             getters: {
-                getTest: (state, payload) => state.count,
+                getTest: (state) => state.count,
                 getAnotherTest: (state, payload: number) => payload,
             },
         });
         expect(taihou.getState()).toStrictEqual({ count: 0 });
         expect(taihou.actions).toHaveProperty("doTest");
-        expect(taihou.actions.doTest(null)).toStrictEqual({ count: 0 });
-        expect(taihou.getters.getTest(null)).toBe(0);
+        expect(taihou.actions.doTest()).toStrictEqual({ count: 0 });
+        expect(taihou.getters.getTest()).toBe(0);
         expect(taihou.getters.getAnotherTest(100)).toBe(100);
 
         expect(taihou.actions.doAnotherTest(1)).toStrictEqual({ count: 1 });
         // State should be updated so we check if so
-        expect(taihou.getters.getTest(null)).toStrictEqual(1);
+        expect(taihou.getters.getTest()).toStrictEqual(1);
     });
 });

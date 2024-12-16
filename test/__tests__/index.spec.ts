@@ -7,7 +7,7 @@ describe("Taihou Store", () => {
         count: 0,
         id: "atago",
         stats: { hp: 500 },
-        dict: {} as Record<string, any>, // Should support this!!!!
+        dict: {} as Record<string, unknown>, // Should support this!!!!
     };
     const deepCopyDefaultState = deepCopy(defaultState);
 
@@ -18,7 +18,7 @@ describe("Taihou Store", () => {
         state: defaultState,
         actions: {
             count: (state, payload: number) => ({ ...state, count: payload }),
-            setId: (state, payload: string) => ({ ...state, id: payload }),
+            setId: (state, payload: string) => null,
             setStats: (state, payload: { hp: number }) => ({
                 ...state,
                 stats: { ...state.stats, ...payload },
@@ -31,6 +31,8 @@ describe("Taihou Store", () => {
         },
         getters: {
             getStats: (state) => state.stats,
+            getStatsWithPayload: (state, payload: { someCustomType: string }) =>
+                state.stats.hp + payload.someCustomType,
         },
     });
     const azuma = useState({
@@ -144,7 +146,7 @@ describe("Taihou Store", () => {
             const atagoState = atago.getState();
             expect(atagoState.dict).toHaveProperty("test");
 
-            resetDict(undefined);
+            resetDict();
 
             expect(reusable).toHaveBeenCalledTimes(2);
             const atagoState2 = atago.getState();
@@ -158,7 +160,10 @@ describe("Taihou Store", () => {
             const newState = actions.setStats({ hp: 1000 });
 
             expect(newState.stats).toStrictEqual({ hp: 1000 });
-            expect(getters.getStats(undefined)).toStrictEqual({ hp: 1000 });
+            expect(getters.getStats()).toStrictEqual({ hp: 1000 });
+            expect(
+                getters.getStatsWithPayload({ someCustomType: "1" }),
+            ).toStrictEqual("10001");
         });
     });
 });

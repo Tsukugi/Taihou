@@ -26,11 +26,12 @@ export type GenericObject<T> = { [K in keyof T]: T[K] };
 export type GenericDispatch<
     Structure,
     Map extends Record<keyof Map, Dispatch>,
+    SingleReturn = any,
 > = {
     [key in keyof Map]: Dispatch<
         Structure,
         ReturnType<Map[key]>,
-        DispatchPayload<Map[key]>
+        SingleReturn & DispatchPayload<Map[key]>
     >;
 };
 
@@ -40,7 +41,9 @@ export type Dispatch<
     Payload = any,
 > = (structure: Structure, payload: Payload) => Return;
 
-export type Getter<P, R> = (payload: P) => R;
+export type Getter<P, R> = P extends NonUndefined<P>
+    ? (payload: P) => R
+    : () => R;
 export type DispatchPayload<D extends Dispatch> = Parameters<D>[1];
 
 export type MapDispatchToGetter<
@@ -53,3 +56,5 @@ export type MapDispatchToGetter<
         ReturnType<Source[key]>
     >;
 };
+
+export type NonUndefined<T> = T extends undefined ? never : T;
