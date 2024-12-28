@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expect, test } from "@jest/globals";
 import { injectState } from "../../src/store/assign";
 import { MapDispatchToGetter } from "../../src/interfaces";

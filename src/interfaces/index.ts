@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export type SubscribeAction<State> = (
     onUpdate: (state: State) => void,
 ) => (state: State) => void;

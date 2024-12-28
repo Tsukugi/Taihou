@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expect, jest, test } from "@jest/globals";
 import { useState } from "../../src/store/store";
 import { deepCopy } from "../../src/store/assign";
