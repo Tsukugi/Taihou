@@ -18,7 +18,7 @@ describe("Taihou Store", () => {
         state: defaultState,
         actions: {
             count: (state, payload: number) => ({ ...state, count: payload }),
-            setId: (state, payload: string) => null,
+            setId: (state, payload: string) => ({ ...state }),
             setStats: (state, payload: { hp: number }) => ({
                 ...state,
                 stats: { ...state.stats, ...payload },

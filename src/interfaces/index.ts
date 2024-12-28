@@ -30,8 +30,8 @@ export type GenericDispatch<
 > = {
     [key in keyof Map]: Dispatch<
         Structure,
-        ReturnType<Map[key]>,
-        SingleReturn & DispatchPayload<Map[key]>
+        SingleReturn & ReturnType<Map[key]>,
+        DispatchPayload<Map[key]>
     >;
 };
 

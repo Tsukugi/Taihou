@@ -44,7 +44,7 @@ export const useState = <
         ({ oldState, result }) => {
             if (innerOptions.debug) console.log({ oldState, newState: result });
             Object.assign(unlinkedState, result);
-            events.publish(result);
+            events.publish(result as State);
             return unlinkedState;
         },
     );

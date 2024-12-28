@@ -1,6 +1,7 @@
 import {
     Dispatch,
     DispatchPayload,
+    GenericDispatch,
     GenericObject,
     Getter,
     MapDispatchToGetter,
@@ -12,13 +13,10 @@ export const deepCopy = <T>(obj: T): T => {
 
 export const injectState = <
     State extends GenericObject<unknown>,
-    DispatchRecord extends {
-        [key in keyof DispatchRecord]: Dispatch<
-            State,
-            ReturnType<DispatchRecord[key]>,
-            DispatchPayload<DispatchRecord[key]>
-        >;
-    } = Record<string, Dispatch<State>>,
+    DispatchRecord extends GenericDispatch<State, DispatchRecord> = Record<
+        string,
+        Dispatch<State>
+    >,
 >(
     getState: () => State,
     record: DispatchRecord,
